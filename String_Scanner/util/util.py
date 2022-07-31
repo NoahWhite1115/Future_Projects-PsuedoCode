@@ -1,27 +1,26 @@
-import re
-from globals.globals_regex import *
-class UTIL():
-    def findMatch(self,keywords: list = [],search_str:str = ''):
-        for kw in keywords:
-            comb_regex = self.build_regex(kw) 
-            match = re.findall(comb_regex,search_str) #returns list with inner tuples for found_groupings
-            #... Logic to parse through match results
-            if len(match) == 1:
-                return match
-    def removeGroupings(self,matches:list = []) -> list:
-        """
-        Args:
-            matches variable will be list with either strings or tuple
-        """
-        new_matches = []
-        for match in matches:
-            if isinstance(match,tuple):
-                new_matches.append(match[0]) #first index of tuple is the whole match
-            elif isinstance(match,str):
-                new_matches.append(match)
-        return new_matches
-    def build_regex(self,keyword) -> str:
-        # logic to allow custom regex patterns per particular case i.e. if scanning pdf documents for different financial documents, each vendor has different format hence -> custom regex patterns
-        return f"{keyword}" #TODO: regex groupings from globals_regex.py containing fixed delimiters and other search parameters to be added to this variable
+def errorGetRelevantLogs():
+    pass
+def findFilesbyExt(ext:str):
+    pass
+def kwargsReturnValues(kwargs:dict,var_names: list) -> tuple:
+    var_list = []
+    for variable in var_names:
+        if kwargs.get(variable) == None:
+            if variable == '':
+                raise ValueError(f'Check GLOBALS:\n\nEmpty key passed in.\nCheck that there are no duplicate commas or ending commas in global string')
+            raise ValueError(f'Missing {variable} in Kwargs. Fix logic for handling passed in/default kwargs to CLI')
+        else:
+            var_list.append(kwargs[variable])
+    return var_list
+
+def splitStringbyDelim(src_string:str,sp_delim:list, cl_delim:list = [],replace:str = '') -> list:
+    arr = []
+    for sp in sp_delim:
+        for item in src_string.split(sp):
+            for cl in cl_delim:
+                item = item.replace(cl,replace)
+            arr.append(item)
+    return arr
+
 
 
