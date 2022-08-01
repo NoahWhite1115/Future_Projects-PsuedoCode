@@ -8,7 +8,7 @@ class DefaultRegex():
         print('\n\n Initing Default')
         self.custom_regex = custom_regex
         self.multiple = multiple
-        self.choose_group = int(choose_group)
+        self.choose_group = choose_group
 
 
     def evaluateMultiple(self, search_str:str, keywords: list = []) -> list:
@@ -24,11 +24,18 @@ class DefaultRegex():
             matches = re.findall(pattern = comb_regex,string = search_str) #returns list with inner tuples for found_groupings
             #... Logic to parse through match results
             if len(matches) == 1:
-                match_list.append(self.isolateMatch(matches[0],keyword = kw, choose_group = self.choose_group))
+                match_result = self.isolateMatch(matches[0],keyword = kw, choose_group = self.choose_group)
+                if match_result != None:
+                    match_list.append(match_result)
             elif len(matches) > 1:
+                match_result = self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw, choose_group = self.choose_group))
+                filtered_result = []
+                for mr in match_result:
+                    if mr != None:
+                        filtered_result.append(mr)
+
                 #Extend with multiple dictionarys [{'match':val},{'match':val},{'match':val},{'match':val},{'match':val}]
-                match_list.extend(self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw, choose_group = self.choose_group))) #TODO check duplicates too
-        #Implied no matches here
+                match_list.extend(filtered_result) #TODO check duplicates too
         return match_list
             
     def getFirstMatch(self, search_str:str, keywords: list = []) -> list:
@@ -41,13 +48,24 @@ class DefaultRegex():
             matches = re.findall(pattern = comb_regex,string = search_str) #returns list with inner tuples for found_groupings
             #... Logic to parse through match results
             if len(matches) == 1:
-                return [self.isolateMatch(matches[0],keyword = kw, choose_group = self.choose_group)]
+                match_result = self.isolateMatch(matches[0],keyword = kw, choose_group = self.choose_group)
+                if match_result == None:
+                    match_result = []
+                else:
+                    match_result = [match_result]
+                return match_result
             elif len(matches) > 1:
-                return self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw, choose_group = self.choose_group))
-        #Implied no matches here
-        return []
+                match_result = self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw, choose_group = self.choose_group))
+                filtered_result = []
+                for mr in match_result:
+                    if mr != None:
+                        filtered_result.append(mr)
+                return filtered_result
+        return [] #Implied no matches here after iterating through all of keywords
 
     def checkDuplicates(self, matches: list) -> list:
+        if len(matches) == 0: 
+            return []
         uniques = {matches[0]['match']:True}
         unique_matches = [matches[0]]
         for match_dict in matches:
@@ -60,7 +78,7 @@ class DefaultRegex():
         match_dict = {}
         group_index = 0
         if choose_group != '':
-            group_index = choose_group
+            group_index = int(choose_group)
         if isinstance(match,tuple) or isinstance(match,list):
             match = match[group_index] #first index of tuple is the whole match
         elif isinstance(match,str):
@@ -140,7 +158,7 @@ class Replace(DefaultRegex, SystemAdmin):
         match_dict = {}
         group_index = 0
         if choose_group != '':
-            group_index = choose_group
+            group_index = int(choose_group)
         if isinstance(match,tuple) or isinstance(match,list):
             match = match[group_index] #first index of tuple is the whole match
         elif isinstance(match,str):

@@ -54,6 +54,7 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
         debug_dict['original_src'], debug_dict['location']=\
             original_location, location
         categ_obj = CATEG_MAP[category]()
+
         if choose_group != '':
             categ_obj.choose_group = choose_group
         if len(keywords) != 0:
@@ -69,6 +70,7 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
         files = []
         files = mode_obj.findFilesbyExt(location = location, file_type = file_type)
         debug_dict['files'] = files
+
         if len(files) == 0:
             debug_dict['custom_regex']=mode_obj.buildRegex(keyword = f"############{str(mode_obj.keywords)}############", custom_regex = mode_obj.custom_regex)
             match = mode_obj.evaluateMultiple(search_str= location, keywords = mode_obj.keywords)
@@ -89,28 +91,27 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
         error_log = traceback.format_exc().split('File')
         sys_admin.traceRelevantErrors(error_log = error_log, script_loc =  __file__, latest = True)
         
-
-    # logic here to place in custom_Regex and use categories.py classes for building specific regex strings using REGEX globals and hard-coded logic
 if __name__ == '__main__':
     T= True
     if T:
         main(\
             [
                 "--debug", True,
+                #"--keywords", '[\s\S]*', #for matching everything including new lines
                 #"--keywords", r'NEW BALANCE ',
-                #"--keywords", r'def',
+                #"--keywords", 'NOT TESTING',
                 #"--keywords", r'logger',
                 #"--keywords",r"datetime",
                 "--location", r"c:\Users\hduon\Documents\Future_Projects-PsuedoCode\test files",#__file__,
                 "--mode", 'Replace',
-                "--category", "Balance",
-                #"--custom_regex",r"",
+                "--category", "Universal",
+                #"--custom_regex",r".*",
                 "--file_type", '.txt',
                 #"--cases","Capital One",
                 "--multiple", True,
-                "--replace_all", False,
-                "--repl_vals","############Replaced############",
-                #"--repl_vals","test2",
+                "--replace_all", True,
+                "--repl_vals","OVERRIDE",
+                #"--repl_vals","TESTING",
                 #"--repl_vals","test3",
                 #"--repl_vals","test4",
                 "--open_file", True,
@@ -118,4 +119,6 @@ if __name__ == '__main__':
             ])
     else:
         main()
-    # python main.py --keywords import --keywords def --location 'C:\Users\hduon\Documents\Future_Projects-PsuedoCode\test files' --file_type '.py' --mode Replace --replace_all True --multiple True
+    
+    #Example cmd shell usage with options/arguments
+    #python -i main.py --location "C:\Users\hduon\Documents\Future_Projects-PsuedoCode\test files" --file_type ".txt" --category Balance --mode Replace --replace_all True --multiple True --debug True --repl_vals "rrrrrrrrr" --open_file True

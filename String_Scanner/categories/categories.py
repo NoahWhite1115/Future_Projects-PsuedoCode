@@ -17,6 +17,7 @@ class Name:
             ]
         self.custom_regex = 'Default'
         self.repl_vals = []
+        self.choose_group = '2'
 
 class Date:
     def __init__(self):
@@ -26,6 +27,7 @@ class Date:
             ]
         self.custom_regex = 'Default'
         self.repl_vals = []
+        self.choose_group = '2'
 
 class SSN:
     def __init__(self):
@@ -35,6 +37,7 @@ class SSN:
             ]
         self.custom_regex = 'Default'
         self.repl_vals = []
+        self.choose_group = '2'
 
 class Address:
     def __init__(self):
@@ -53,6 +56,7 @@ class CreditCards:
             ]
         self.custom_regex = 'Default'
         self.repl_vals = []
+        self.choose_group = '2'
 
 class Property_IDs:
     def __init__(self):
@@ -71,6 +75,7 @@ class File_Numbers:
             ]
         self.custom_regex = 'Default'
         self.repl_vals = []
+        self.choose_group = '2'
 
 class Universal:
     def __init__(self):
@@ -80,3 +85,4 @@ class Universal:
             ]
         self.custom_regex = ''
         self.repl_vals = []
+        self.choose_group = ''

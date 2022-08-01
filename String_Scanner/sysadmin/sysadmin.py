@@ -21,7 +21,7 @@ class SystemAdmin():
             if dict_keys:
                 dict_obj = {}
                 for f in file_list:
-                    dict_obj[f] = True
+                    dict_obj[f.upper()] = True
                 file_list = dict_obj
             return file_list
 
@@ -68,7 +68,7 @@ class SystemAdmin():
         for error_file in error_log:
             file_name = os.path.join(error_file.split(", line")[0].replace(' ','').replace('"',''))
             #print(os.path.isfile(file_name), ' ',file_name)
-            if file_name in proj_files_dict:
+            if file_name.upper() in proj_files_dict:
                 new_error_log.append(error_file)
             #print(file_name)
         if latest:
