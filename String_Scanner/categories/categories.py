@@ -1,11 +1,13 @@
+from globals.globals_regex import *
 class Balance:
     def __init__(self):
         self.keywords=\
             [
-                'Balance'
+                'NEW BALANCE '
             ]
-        self.custom_regex = 'Default'
-
+        self.custom_regex = f"(\$?{ANY_FLOAT}{ANY_PHRASE}{NL})"
+        self.repl_vals = []
+#((([\d]{3}\,)+[\d]{3})|[\d]+)(\.[\d]+)
 class Name:
     def __init__(self):
         self.keywords=\
@@ -13,6 +15,7 @@ class Name:
                 'Name'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class Date:
     def __init__(self):
@@ -21,6 +24,7 @@ class Date:
                 'Date'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class SSN:
     def __init__(self):
@@ -29,6 +33,7 @@ class SSN:
                 'SSN'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class Address:
     def __init__(self):
@@ -37,6 +42,7 @@ class Address:
                 'Address'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class CreditCards:
     def __init__(self):
@@ -45,6 +51,7 @@ class CreditCards:
                 'CreditCards'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class Property_IDs:
     def __init__(self):
@@ -53,6 +60,7 @@ class Property_IDs:
                 'Property_IDs'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class File_Numbers:
     def __init__(self):
@@ -61,6 +69,7 @@ class File_Numbers:
                 'File_Numbers'
             ]
         self.custom_regex = 'Default'
+        self.repl_vals = []
 
 class Universal:
     def __init__(self):
@@ -69,3 +78,4 @@ class Universal:
                 ''
             ]
         self.custom_regex = ''
+        self.repl_vals = []

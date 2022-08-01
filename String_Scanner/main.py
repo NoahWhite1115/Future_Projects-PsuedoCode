@@ -30,7 +30,7 @@ Return: None
 """
 
 @click.command()
-@click.option("--keywords", required = True, multiple = True) #target for text or prepended phrases for finding type of data
+@click.option("--keywords", multiple = True, default = []) #target for text or prepended phrases for finding type of data
 @click.option("--location",type = str,required = True) #directory/filepath
 @click.option("--debug",type=bool,default = True) #additional special cases #TODO for how to use
 @click.option("--mode",type=str,default = "Scan") #to scan or replace match found inside str
@@ -40,16 +40,19 @@ Return: None
 @click.option("--cases",type=str,default = '') #additional special cases #TODO for how to use
 @click.option("--multiple",type=bool,default = False) #additional special cases #TODO for how to use
 @click.option("--replace_all",type=bool,default = False) #additional special cases #TODO for how to use
-def main(keywords:str,location:str,**kwargs:dict) -> None:
+@click.option("--repl_vals", multiple = True,default=[])  #target for text or prepended phrases for finding type of data
+@click.option("--open_file", type = bool, default = False) #Set mode to open file and extract text. If false and looking at a file, only scan through filename
+@click.option("--choose_group",type = str, default = '')  #Choose group in regex match results to get exact match
+def main(keywords:list,location:str,**kwargs:dict) -> None:
     try:
+            #print(kwargs)
         original_location = str(location)
         var_names = splitStringbyDelim(CLI_ORDER,[','],[' '])
-        debug, category, mode, custom_regex, file_type, cases, multiple, replace_all= \
+        debug, category, mode, custom_regex, file_type, cases, multiple, replace_all, repl_vals, open_file, choose_group= \
             kwargsReturnValues(kwargs = kwargs, var_names = var_names)
         debug_dict = kwargs
-        debug_dict['original_src'],debug_dict['keywords'], debug_dict['location']=\
-            original_location, keywords, location
-        
+        debug_dict['original_src'], debug_dict['location']=\
+            original_location, location
         categ_obj = CATEG_MAP[category]()
         if len(keywords) != 0:
             categ_obj.keywords = keywords
@@ -57,7 +60,11 @@ def main(keywords:str,location:str,**kwargs:dict) -> None:
         if custom_regex != "":
             categ_obj.custom_regex = custom_regex
             debug_dict['custom_regex'] = custom_regex
-        mode_obj = MODE_MAP[mode](categ_attribs = categ_obj.__dict__, multiple = multiple, replace_all = replace_all)
+        if len(repl_vals) != 0:
+            categ_obj.repl_vals = repl_vals
+            debug_dict['repl_vals'] = repl_vals
+        mode_obj = MODE_MAP[mode](categ_attribs = categ_obj.__dict__, multiple = multiple, replace_all = replace_all, repl_vals = repl_vals, open_file = open_file)
+        debug_dict['keywords'] = mode_obj.keywords
         #print(kwargs)
         #mode_obj.logger(debug = debug,vars = debug_dict)
 
@@ -65,17 +72,20 @@ def main(keywords:str,location:str,**kwargs:dict) -> None:
         files = mode_obj.findFilesbyExt(location = location, file_type = file_type)
         debug_dict['files'] = files
         if len(files) == 0:
-            match = mode_obj.findMatches(search_str= location, keywords = keywords)
-            location = mode_obj.evaluateReplace(match = match, search_str = location)   
+            debug_dict['custom_regex']=mode_obj.buildRegex(keyword = f"############{str(mode_obj.keywords)}############", custom_regex = mode_obj.custom_regex)
+            match = mode_obj.evaluateMultiple(search_str= location, keywords = mode_obj.keywords)
+            location = mode_obj.evaluateReplace(matches = match, search_str = location)   
             debug_dict['location'], debug_dict['match']=  location , match
             #mode_obj.logger(debug = True,vars = debug_dict, isolate = ['location'])
         else:
             for file in files:
                 extracted_text = mode_obj.extractText(file = file)
-                match = mode_obj.findMatches(search_str= extracted_text, keywords = keywords)
-                location = mode_obj.evaluateReplace(search_str = extracted_text, match = match)   
+                debug_dict['custom_regex']=mode_obj.buildRegex(keyword = f"############{str(mode_obj.keywords)}############", custom_regex = mode_obj.custom_regex)
+                match = mode_obj.evaluateMultiple(search_str= extracted_text, keywords = mode_obj.keywords)
+                location = mode_obj.evaluateReplace(search_str = extracted_text, matches = match)   
                 debug_dict['location'], debug_dict['match']=  location , match
-                mode_obj.logger(debug = debug,vars = debug_dict, isolate = ['keywords','match','location'])
+                mode_obj.logger(debug = debug,vars = debug_dict, isolate = ['keywords','repl_vals','location','custom_regex','match'])
+
     except BaseException:
         error_log = traceback.format_exc().split('File')
         sys_admin.traceRelevantErrors(error_log = error_log, script_loc =  __file__, latest = True)
@@ -83,21 +93,29 @@ def main(keywords:str,location:str,**kwargs:dict) -> None:
 
     # logic here to place in custom_Regex and use categories.py classes for building specific regex strings using REGEX globals and hard-coded logic
 if __name__ == '__main__':
-    T= False
+    T= True
     if T:
         main(\
             [
                 "--debug", True,
-                "--keywords", r'import',
-                "--keywords", r'puzzle',
+                #"--keywords", r'NEW BALANCE ',
+                #"--keywords", r'def',
+                #"--keywords", r'logger',
+                #"--keywords",r"datetime",
                 "--location", r"c:\Users\hduon\Documents\Future_Projects-PsuedoCode\test files",#__file__,
                 "--mode", 'Replace',
-                "--category", "Universal",
-                "--custom_regex",r"",
-                "--file_type", '.py',
+                "--category", "Balance",
+                #"--custom_regex",r"",
+                "--file_type", '.txt',
                 #"--cases","Capital One",
                 "--multiple", True,
-                "--replace_all", True
+                "--replace_all", True,
+                "--repl_vals","############Replaced############",
+                #"--repl_vals","test2",
+                #"--repl_vals","test3",
+                #"--repl_vals","test4",
+                "--open_file", True,
+                #"--choose_group", 2
             ])
     else:
         main()

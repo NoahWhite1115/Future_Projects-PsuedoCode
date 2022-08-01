@@ -1,7 +1,3 @@
-def errorGetRelevantLogs():
-    pass
-def findFilesbyExt(ext:str):
-    pass
 def kwargsReturnValues(kwargs:dict,var_names: list) -> tuple:
     var_list = []
     for variable in var_names:

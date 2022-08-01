@@ -3,8 +3,9 @@ from datetime import datetime
 from util.util import *
 
 class SystemAdmin():
-    def __init__(self):
+    def __init__(self, open_file: bool = False):
         print('\n\n Init SystemAdmin')
+        self.open_file = open_file
 
     def findFilesbyExt(self,file_type:str = '.txt', location: str = os.PathLike, dict_keys: bool = False) -> list:
         if file_type != None:
@@ -25,28 +26,29 @@ class SystemAdmin():
             return file_list
 
     def extractText(self,file):
-        with open(file = file, mode = 'r') as f:
-            txt = str(f.readlines())
-            f.close()
-            return txt
+        if self.open_file == True:
+            with open(file = file, mode = 'r') as f:
+                txt = str(f.readlines())
+                f.close()
+                return txt
+        else:
+            return file
 
     def logger(self,debug:bool = True,vars:dict= {}, custom:str = '',isolate: list = []) -> None:
         if debug:
             var_log = []
             vars_length = len(vars)
             for index, var in enumerate(vars):
-                if index == vars_length - 1:
-                    var_log.append(f"\r\n{var} ------------- Type: {type(vars[var])} ---------------------- Value:---------------- {vars[var]}")
-                    break
                 if len(isolate) >=1 and not var in isolate:
-                    var_log.append('\r')
                     continue
-                var_log.append(f"\r\n{var} ------------- Type: {type(vars[var])} ---------------------- Value:---------------- {vars[var]}")
-                var_log.append('\n')
-            var_log = ''.join(var_log)
+                if index == vars_length - 1:
+                    var_log.append(f"\r{var} ------------- Type: {type(vars[var])} ---------------------- Value:---------------- {vars[var]}")
+                    break
+                var_log.append(f"\r{var} ------------- Type: {type(vars[var])} ---------------------- Value:---------------- {vars[var]}")
+            var_log = '\n'.join(var_log)
             print(\
             f"""
-            \r\n------------DEBUG LOGS21-------------Time: {datetime.now()}
+            \r\n------------DEBUG LOGS-------------Time: {datetime.now()}\n
             {var_log}
             {custom}
 
