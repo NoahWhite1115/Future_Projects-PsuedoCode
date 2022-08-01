@@ -5,8 +5,9 @@ class Balance:
             [
                 'NEW BALANCE '
             ]
-        self.custom_regex = f"(\$?{ANY_FLOAT}{ANY_PHRASE}{NL})"
+        self.custom_regex = f"(\$?{ANY_FLOAT}{ANY_PHRASE}?{NL})"
         self.repl_vals = []
+        self.choose_group = '2'
 #((([\d]{3}\,)+[\d]{3})|[\d]+)(\.[\d]+)
 class Name:
     def __init__(self):

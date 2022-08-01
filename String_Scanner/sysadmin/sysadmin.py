@@ -25,14 +25,23 @@ class SystemAdmin():
                 file_list = dict_obj
             return file_list
 
-    def extractText(self,file):
+    def extractText(self,file: os.PathLike) -> str:
         if self.open_file == True:
             with open(file = file, mode = 'r') as f:
-                txt = str(f.readlines())
+                txt = ''.join(f.readlines())
                 f.close()
                 return txt
         else:
             return file
+
+    def writeText(self,file: os.PathLike, text:str = '') -> str:
+        lines = text.split("\\n', '")
+        lines[0] = lines[0].replace("['",'')
+        lines[len(lines)-1]= lines[len(lines)-1].replace("']",'')
+        with open(file = file, mode = 'w') as f:
+            f.writelines(text)
+            f.close()
+            return text
 
     def logger(self,debug:bool = True,vars:dict= {}, custom:str = '',isolate: list = []) -> None:
         if debug:
@@ -42,9 +51,9 @@ class SystemAdmin():
                 if len(isolate) >=1 and not var in isolate:
                     continue
                 if index == vars_length - 1:
-                    var_log.append(f"\r{var} ------------- Type: {type(vars[var])} ---------------------- Value:---------------- {vars[var]}")
+                    var_log.append(f"\r{var} ------------- Type: {type(vars[var])} ---------------------- Value:----------------\n{vars[var]}")
                     break
-                var_log.append(f"\r{var} ------------- Type: {type(vars[var])} ---------------------- Value:---------------- {vars[var]}")
+                var_log.append(f"\r{var} ------------- Type: {type(vars[var])} ---------------------- Value:----------------\n{vars[var]}")
             var_log = '\n'.join(var_log)
             print(\
             f"""

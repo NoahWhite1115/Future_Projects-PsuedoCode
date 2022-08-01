@@ -4,10 +4,11 @@ from sysadmin.sysadmin import SystemAdmin
 import pandas as pd
 
 class DefaultRegex():
-    def __init__(self,custom_regex: str, multiple : bool):
+    def __init__(self,custom_regex: str, multiple : bool, choose_group: str):
         print('\n\n Initing Default')
         self.custom_regex = custom_regex
         self.multiple = multiple
+        self.choose_group = int(choose_group)
 
 
     def evaluateMultiple(self, search_str:str, keywords: list = []) -> list:
@@ -23,10 +24,10 @@ class DefaultRegex():
             matches = re.findall(pattern = comb_regex,string = search_str) #returns list with inner tuples for found_groupings
             #... Logic to parse through match results
             if len(matches) == 1:
-                match_list.append( self.isolateMatch(matches[0],keyword = kw))
+                match_list.append(self.isolateMatch(matches[0],keyword = kw, choose_group = self.choose_group))
             elif len(matches) > 1:
                 #Extend with multiple dictionarys [{'match':val},{'match':val},{'match':val},{'match':val},{'match':val}]
-                match_list.extend(self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw))) #TODO check duplicates too
+                match_list.extend(self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw, choose_group = self.choose_group))) #TODO check duplicates too
         #Implied no matches here
         return match_list
             
@@ -40,14 +41,11 @@ class DefaultRegex():
             matches = re.findall(pattern = comb_regex,string = search_str) #returns list with inner tuples for found_groupings
             #... Logic to parse through match results
             if len(matches) == 1:
-                return [self.isolateMatch(matches[0],keyword = kw)]
+                return [self.isolateMatch(matches[0],keyword = kw, choose_group = self.choose_group)]
             elif len(matches) > 1:
-                return self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw))
+                return self.checkDuplicates(matches = self.isolateMatches(matches,keyword = kw, choose_group = self.choose_group))
         #Implied no matches here
         return []
-
-    def trimDelims(self,delims:list):
-        pass
 
     def checkDuplicates(self, matches: list) -> list:
         uniques = {matches[0]['match']:True}
@@ -58,10 +56,13 @@ class DefaultRegex():
                 unique_matches.append(match_dict)
         return unique_matches
             
-    def isolateMatch(self,match: any, keyword:str = '') -> str:
+    def isolateMatch(self,match: any, keyword:str = '', choose_group:str = '') -> str:
         match_dict = {}
+        group_index = 0
+        if choose_group != '':
+            group_index = choose_group
         if isinstance(match,tuple) or isinstance(match,list):
-            match = match[0] #first index of tuple is the whole match
+            match = match[group_index] #first index of tuple is the whole match
         elif isinstance(match,str):
             pass 
         match_dict['match'] = match
@@ -70,14 +71,14 @@ class DefaultRegex():
     def evaluateReplace(self,match:str,search_str:str):
         return search_str
 
-    def isolateMatches(self,matches:list = [], keyword: str = '') -> list:
+    def isolateMatches(self,matches:list = [], keyword: str = '', choose_group: str= '') -> list:
         """
         Args:
             matches variable will be list with either strings or tuple
         """
         new_matches = []
         for match in matches:
-            match_result = self.isolateMatch(match = match, keyword = keyword)
+            match_result = self.isolateMatch(match = match, keyword = keyword, choose_group = choose_group)
             if match_result != None:
                 new_matches.append(match_result)
         return new_matches
@@ -104,7 +105,7 @@ class Scan(DefaultRegex, SystemAdmin): #has Category properties Category.__dict_
                 self.repl_map[keyw]= self.repl_vals[index]
             except:
                 self.repl_map[keyw]= '' """
-        DefaultRegex.__init__(self,custom_regex = categ_attribs['custom_regex'],  multiple = multiple)
+        DefaultRegex.__init__(self,custom_regex = categ_attribs['custom_regex'],  multiple = multiple, choose_group = categ_attribs['choose_group'])
         SystemAdmin.__init__(self)
         
 
@@ -123,7 +124,7 @@ class Replace(DefaultRegex, SystemAdmin):
                 self.repl_map[keyw]= self.repl_vals[index]
             except:
                 self.repl_map[keyw]= ''
-        DefaultRegex.__init__(self,custom_regex = categ_attribs['custom_regex'], multiple = multiple)
+        DefaultRegex.__init__(self,custom_regex = categ_attribs['custom_regex'], multiple = multiple, choose_group = categ_attribs['choose_group'])
         SystemAdmin.__init__(self, open_file = open_file)
 
 
@@ -135,10 +136,13 @@ class Replace(DefaultRegex, SystemAdmin):
             search_str = search_str.replace(mtch['match'],mtch['replace'],replace_count)
         return search_str
 
-    def isolateMatch(self,match: any, keyword:str = '') -> str:
+    def isolateMatch(self,match: any, keyword:str = '', choose_group: str = '') -> str:
         match_dict = {}
+        group_index = 0
+        if choose_group != '':
+            group_index = choose_group
         if isinstance(match,tuple) or isinstance(match,list):
-            match = match[0] #first index of tuple is the whole match
+            match = match[group_index] #first index of tuple is the whole match
         elif isinstance(match,str):
             if match == '':
                 return
@@ -147,4 +151,3 @@ class Replace(DefaultRegex, SystemAdmin):
         match_dict['match'] = match
         match_dict['replace'] = self.repl_map[keyword]
         return match_dict
-

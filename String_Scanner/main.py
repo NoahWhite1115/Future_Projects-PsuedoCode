@@ -54,18 +54,16 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
         debug_dict['original_src'], debug_dict['location']=\
             original_location, location
         categ_obj = CATEG_MAP[category]()
+        if choose_group != '':
+            categ_obj.choose_group = choose_group
         if len(keywords) != 0:
             categ_obj.keywords = keywords
-            debug_dict['keywords'] = keywords
         if custom_regex != "":
             categ_obj.custom_regex = custom_regex
-            debug_dict['custom_regex'] = custom_regex
         if len(repl_vals) != 0:
             categ_obj.repl_vals = repl_vals
-            debug_dict['repl_vals'] = repl_vals
         mode_obj = MODE_MAP[mode](categ_attribs = categ_obj.__dict__, multiple = multiple, replace_all = replace_all, repl_vals = repl_vals, open_file = open_file)
-        debug_dict['keywords'] = mode_obj.keywords
-        #print(kwargs)
+        debug_dict['keywords'], debug_dict['custom_regex'], debug_dict['choose_group'], debug_dict['repl_vals'] = mode_obj.keywords, mode_obj.custom_regex, mode_obj.choose_group, mode_obj.repl_vals
         #mode_obj.logger(debug = debug,vars = debug_dict)
 
         files = []
@@ -84,7 +82,8 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
                 match = mode_obj.evaluateMultiple(search_str= extracted_text, keywords = mode_obj.keywords)
                 location = mode_obj.evaluateReplace(search_str = extracted_text, matches = match)   
                 debug_dict['location'], debug_dict['match']=  location , match
-                mode_obj.logger(debug = debug,vars = debug_dict, isolate = ['keywords','repl_vals','location','custom_regex','match'])
+                mode_obj.logger(debug = debug,vars = debug_dict, isolate = ['keywords','repl_vals','location','match','custom_regex'])
+                mode_obj.writeText(file = file, text = location)
 
     except BaseException:
         error_log = traceback.format_exc().split('File')
@@ -109,7 +108,7 @@ if __name__ == '__main__':
                 "--file_type", '.txt',
                 #"--cases","Capital One",
                 "--multiple", True,
-                "--replace_all", True,
+                "--replace_all", False,
                 "--repl_vals","############Replaced############",
                 #"--repl_vals","test2",
                 #"--repl_vals","test3",
