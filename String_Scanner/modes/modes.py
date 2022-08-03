@@ -108,6 +108,8 @@ class DefaultRegex():
         return comb_regex
         
 
+# So I get that the idea is to have Replace and Scan share constructor inputs, so that they can both be instantiated in the same place, but it's bad practice to have args passed in that you don't use. Not sure how I would reogranize it to get the benefits of both. Maybe optional args in replace? 
+
 class Scan(DefaultRegex, SystemAdmin): #has Category properties Category.__dict__
     def __init__(self,categ_attribs:dict, multiple: bool, replace_all: bool, repl_vals: list, open_file: bool):
         print('\n\n Init Scan')

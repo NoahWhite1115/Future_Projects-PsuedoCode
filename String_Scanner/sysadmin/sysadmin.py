@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from util.util import *
 
+# Nit: I'd rename this to something like 'FileHandler'. Sysadmin is a vague class name
 class SystemAdmin():
     def __init__(self, open_file: bool = False):
         print('\n\n Init SystemAdmin')
@@ -43,6 +44,7 @@ class SystemAdmin():
             f.close()
             return text
 
+    # Nit: Python has built-in logging libraries. Those might work better than print logs. 
     def logger(self,debug:bool = True,vars:dict= {}, custom:str = '',isolate: list = []) -> None:
         if debug:
             var_log = []
@@ -62,6 +64,7 @@ class SystemAdmin():
             {custom}
 
             """)
+
     def traceRelevantErrors(self,error_log:list,script_loc:os.PathLike,latest = False):
         new_error_log = []
         proj_files_dict = self.findFilesbyExt(file_type = '.py',location = script_loc.replace('main.py',''), dict_keys=True)

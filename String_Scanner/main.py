@@ -55,6 +55,8 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
             original_location, location
         categ_obj = CATEG_MAP[category]()
 
+        # maybe throw an exception? What do you expect to happen if there are no keywords or if custom_regex is blank?
+        # it fails later, and then is caught by the outer try-catch block, but it should really raise a ValueError here
         if choose_group != '':
             categ_obj.choose_group = choose_group
         if len(keywords) != 0:
@@ -63,6 +65,14 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
             categ_obj.custom_regex = custom_regex
         if len(repl_vals) != 0:
             categ_obj.repl_vals = repl_vals
+        
+        # I'm not a fan of the way mode_obj is used here. It's taking on too many roles and impacting code legibility. 
+        # I'd split it into multiple classes, each with a well defined responsibilty; logger, fileHandler, and parser maybe? 
+
+        # I like the idea of having scan and replace be sibling classes, but I don't like the way it's implemented
+        # I'd make it so that scan and replace are both children of a parser class, and parser has a 'parse' method. Then the parse method makes the calls to buildRegex, evaluateMultiple, etc. It'd make main simpler. 
+        # Just suggestions. There's probably a better way to do it than that
+
         mode_obj = MODE_MAP[mode](categ_attribs = categ_obj.__dict__, multiple = multiple, replace_all = replace_all, repl_vals = repl_vals, open_file = open_file)
         debug_dict['keywords'], debug_dict['custom_regex'], debug_dict['choose_group'], debug_dict['repl_vals'] = mode_obj.keywords, mode_obj.custom_regex, mode_obj.choose_group, mode_obj.repl_vals
         #mode_obj.logger(debug = debug,vars = debug_dict)
@@ -82,11 +92,17 @@ def main(keywords:list,location:str,**kwargs:dict) -> None:
                 extracted_text = mode_obj.extractText(file = file)
                 debug_dict['custom_regex']=mode_obj.buildRegex(keyword = f"############{str(mode_obj.keywords)}############", custom_regex = mode_obj.custom_regex)
                 match = mode_obj.evaluateMultiple(search_str= extracted_text, keywords = mode_obj.keywords)
+
+                # You have to dig into the code to see that Scan doesn't actually do anything with this method
                 location = mode_obj.evaluateReplace(search_str = extracted_text, matches = match)   
+
                 debug_dict['location'], debug_dict['match']=  location , match
+
+                # logging should be its own object, even if you decide not to use built in logging
                 mode_obj.logger(debug = debug,vars = debug_dict, isolate = ['keywords','repl_vals','location','match','custom_regex'])
                 mode_obj.writeText(file = file, text = location)
 
+    # I guess this is ok? Catching generic exceptions like BaseException is ususally bad practice because it swallows exception cases you want the program to fail on. But here, you're just doing some additional logging before ending the program anyway, so it might be fine. 
     except BaseException:
         error_log = traceback.format_exc().split('File')
         sys_admin.traceRelevantErrors(error_log = error_log, script_loc =  __file__, latest = True)
